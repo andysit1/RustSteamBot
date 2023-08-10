@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic Page Needs USER
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Your page title here :)</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="{{ url_for('static', path='/normalize.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/skeleton.css') }}">
+
+
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700&display=swap" rel="stylesheet">
+
+
+  <!-- Jquery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+  <script src="{{ url_for('static', path='/imgCheckBox.js') }}"></script>
+  <script src="{{ url_for('static', path='/onstart.js') }}"></script>
+  <script src="{{ url_for('static', path='/inventoryLogic.js') }}"></script>
+  <!-- Alpine Js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <nav class="row">
+      <div>
+        <button class="u-pull-right" onclick="location.href='/user/logout'">logout</button>
+      </div>
+    </nav>
+
+    <br>
+    <br>
+
+    <!-- Headings -->
+    <div class="row">
+      <div class="input-container">
+        <input class="u-full-width" type="text" placeholder="trade url..." id="tradeUrlInput">
+        <input class="u-pull-right button-primary" type="submit" value="Submit" id="tradeSubmit">
+      </div>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- active games / chat row -->
+    <div class="row">
+      <div class="ten columns">
+        <table class="u-full-width">
+          <thead>
+            <tr>
+              <th>Listings</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+
+              <th>History</th>
+              <th></th>
+              <th><input id="1" class="button-primary open-button create-game" type="button" value="Create Game"></th>
+            </tr>
+          </thead>
+
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+
+              <th>Value</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          </tbody>
+        </table>
+
+        <!-- Selection Modal Content -->
+        <dialog class="modal" id="modal">
+          <div class="row">
+            <div class="column one-half">
+              <img class="RadioCheckable" style="max-width: 120px; max-height: 100px;" name="BlackCOIN" src="static/BlackCOIN.png">
+            </div>
+            <div class="column one-half">
+              <img class="RadioCheckable" style="max-width: 120px; max-height: 100px;" name = "RedCOIN" src="static/RedCOIN.png">
+            </div>
+          </div>
+
+          <div class="row">
+            <h5>Search bar placeholder...</h5>
+          </div>
+          <!-- loops through inventory and forms a grid  -->
+
+          <div id="inventoryModal" class="row">
+          </div>
+
+          <div class="row">
+            <button class="button close-button">close modal</button>
+            <button class="button submit-button">submit button</button>
+          </div>
+
+        </dialog>
+
+
+        <!-- Viewing Game Modal -->
+        <dialog class="modalView" id="modal2">
+          <div class="row">
+            <h2 class="customText">Coin Flip History</h2>
+          </div>
+
+          <div class="row">
+            <div class="column one-half">
+              <img class="circle-image" id="player1pfp" src="https://avatars.steamstatic.com/14f1a9927382fa8dea134a0f3ca6f17e6938e131_full.jpg">
+              <p class="customText" id="player1NameTag">Host Data</p>
+            </div>
+            <div class="column one-half">
+              <img class="circle-image" id="player2pfp" src="https://avatars.steamstatic.com/14f1a9927382fa8dea134a0f3ca6f17e6938e131_full.jpg">
+              <p class="customText" id="player2NameTag">Opponent Data</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column one-half">
+              <div class="row">
+                <div class="four columns">
+                  <p class="customText" id="player1Value">Cost</p>
+                </div>
+                <div class="four columns">
+                  <p class="customText" id="player1ItemAmt">Number of Items</p>
+                </div>
+                <div class="four columns">
+                  <p class="customText" id="player1WinCondition">Win Percentage</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="column one-half">
+              <div class="row">
+                <div class="four columns">
+                  <p class="customText" id="player2Value">Cost</p>
+                </div>
+                <div class="four columns">
+                  <p class="customText" id="player2ItemAmt">Number of Items</p>
+                </div>
+                <div class="four columns">
+                  <p class="customText" id="player2WinCondition">Win Percentage</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column one-half">
+              <table class="u-full-width">
+                <tbody id="player1Items">
+                  <tr>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="column one-half">
+              <table class="u-full-width">
+                <tbody id="player2Items">
+                  <tr>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                    <td>
+                      <img class="viewItemImg" src="">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="row verify">
+            <p class="customText" id="roomIdentification">ID: Empty</p>
+            <p class="customText" id="hashtoken">Hash: Empty</p>
+            <p class="customText" id="modsalt">Mod: Empty Ticket: Empty</p>
+          </div>
+        </dialog>
+      </div>
+
+      <!-- chat, and anything to the side  -->
+      <div class="two columns">
+        <h6>WebSocket Chat</h6>
+        <p>Your ID: <span id="ws-id"></span></p>
+        <form action="" onsubmit="sendMessage(event)">
+          <input type="text" id="messageText" autocomplete="off" style="margin-bottom: 1.5em"/>
+          <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let side = "";
+    let intent = "";
+
+    // Populate Table
+    var tableBody = document.querySelector('tbody');
+
+    // Button Instance
+    const modal = document.querySelector(".modal");
+    const modal2 = document.getElementById("modal2")
+    const openModal = document.querySelectorAll(".open-button");
+    const closeModal = document.querySelector(".close-button");
+    const createButton = document.querySelector(".create-game");
+    const joinButton = document.querySelectorAll(".join-game")
+    const submitModal = document.querySelector(".submit-button")
+    const inventoryContainer = document.getElementById(".inventoryModal");
+
+    var user = "{{ context.steam_id }}";
+    var profile_info = "{{ context.profile_info }}"
+    var trade_token = "{{ context.trade_token }}"
+    var profile_object = JSON.parse(profile_info.replace(/&#34;/g, '"'));
+    console.log(profile_object)
+
+    // Button Functions
+    openModal.forEach((button) => {
+      button.addEventListener('click', () => {
+        fetchInventory(user);
+        modal.showModal();
+      })
+    })
+
+    closeModal.addEventListener('click', () => {
+      modal.close();
+      modal2.close();
+      items = [];
+      totalInventoryCost = 0;
+      console.log("closed")
+    })
+
+    createButton.addEventListener('click', () => {
+      intent = "create"
+      console.log(intent);
+    })
+
+    // Unknown Users
+    document.querySelector("#ws-id").textContent = user;
+    var ws = new WebSocket(`ws://165.227.32.48:80/game/ws/${user}`);
+
+    //changes the row
+    function updateRow(data) {
+      var rows = tableBody.getElementsByTagName("tr")
+      for (const row in rows){
+        if (row.id === data.roomID){
+          console.log("found row!!!")
+        }
+      }
+    }
+
+
+    // Chat Function
+    function sendMessage(event) {
+      var input = document.getElementById("messageText")
+
+      var payLoad = {
+        'action' : 'message',
+        'content' : input.value
+      }
+
+
+      ws.send(JSON.stringify(payLoad))
+      input.value = ''
+      event.preventDefault()
+    }
+  </script>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
