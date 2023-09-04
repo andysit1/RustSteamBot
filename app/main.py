@@ -27,7 +27,6 @@ from steam import SteamID
 #password instance
 models.Base.metadata.create_all(bind=engine)
 
-
 from app.routers import user, gamelogic
 app.include_router(user.router)
 app.include_router(gamelogic.router)

@@ -54,24 +54,22 @@ function countItems(){
 
   const div = document.getElementById('inventoryModal');
   const imagesInInventory = div.querySelectorAll("span");
-  console.log("COUNTING ITEMS");
   let invItemCount = 0
   imagesInInventory.forEach(image => {
     if (image.classList.contains("imgChked")){
-      let imgEle = image.querySelector("img");
-      console.log(imgEle.name);
       invItemCount++;
     }
   })
 
-  console.log(invItemCount);
   return invItemCount;
 }
 
+
+// takes a list of prices and appends them to a fakedb to be sent off to server
 function getItems(){
   const div = document.getElementById('inventoryModal');
   const imagesInInventory = div.querySelectorAll("span");
-  console.log("COUNTING ITEMS");
+
   let fakeItemDB = []
   imagesInInventory.forEach(image => {
     if (image.classList.contains("imgChked")){
@@ -121,7 +119,11 @@ function loadImgSelectors(){
     },
     onclick: function(el){
       imgEl = el.children()[0];  // the img element
-      countItems();
+      if (countItems() > 8){
+        el.deselect();
+        alert("You have exceeded the 8 item limit");
+      }
+
     }
   });
 }
@@ -195,8 +197,6 @@ function fetchInventory(userid){
     throw error
   })
 }
-
-
 
 $(document).ready(function() {
 
@@ -416,6 +416,7 @@ $(document).ready(function() {
       document.getElementById("modsalt").innerHTML = "Mod: " + object.modsalt + " Ticket: " + object.ticket;
       var winCoinImg = document.createElement("img")
       winCoinImg.setAttribute("class", "winningCoin")
+      console.log(object.winner.side)
       winCoinImg.src = "static/"+ object.winner.side +".png"
 
       // object.winner.side
@@ -424,8 +425,7 @@ $(document).ready(function() {
   }
 
   function makeRoomElement(room){
-
-    var row = document.createElement('tr');
+    var row = tableBody.insertRow(0);
     row.id = room.roomid;
 
     var profileCell = document.createElement('td');
@@ -479,6 +479,10 @@ $(document).ready(function() {
       fetchInventory(user);
       intent = "joinning";
       currentRoom = room.roomid;
+
+      let mod = document.getElementById("coinSelect");
+      mod.classList.add("hide");
+
     })
 
     button.id = room.user;
@@ -497,7 +501,6 @@ $(document).ready(function() {
     buttonCell.appendChild(button2);
     row.appendChild(buttonCell);
 
-    tableBody.appendChild(row);
   }
   $("img.RadioCheckable").imgCheckbox({
     "radio" : true,

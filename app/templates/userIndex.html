@@ -110,17 +110,13 @@
 
         <!-- Selection Modal Content -->
         <dialog class="modal" id="modal">
-          <div class="row">
+          <div id="coinSelect" class="row">
             <div class="column one-half">
-              <img class="RadioCheckable" style="max-width: 120px; max-height: 100px;" name="BlackCOIN" src="static/BlackCOIN.png">
+              <img class="RadioCheckable selectCoin" style="max-width: 120px; max-height: 100px;" name="BlackCOIN" src="static/BlackCOIN.png">
             </div>
             <div class="column one-half">
-              <img class="RadioCheckable" style="max-width: 120px; max-height: 100px;" name = "RedCOIN" src="static/RedCOIN.png">
+              <img class="RadioCheckable selectCoin" style="max-width: 120px; max-height: 100px;" name = "RedCOIN" src="static/RedCOIN.png">
             </div>
-          </div>
-
-          <div class="row">
-            <h5>Search bar placeholder...</h5>
           </div>
           <!-- loops through inventory and forms a grid  -->
 
@@ -330,11 +326,16 @@
     createButton.addEventListener('click', () => {
       intent = "create"
       console.log(intent);
+
+
+      let mod = document.getElementById("coinSelect");
+      mod.classList.remove("hide");
+
     })
 
     // Unknown Users
     document.querySelector("#ws-id").textContent = user;
-    var ws = new WebSocket(`ws://165.227.32.48:80/game/ws/${user}`);
+    var ws = new WebSocket(`ws://localhost:80/game/ws/${user}`);
 
     //changes the row
     function updateRow(data) {

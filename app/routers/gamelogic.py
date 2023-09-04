@@ -41,9 +41,6 @@ async def get_room_by_id(roomid: str):
   data = await roomManager.getRoomContext(roomid=roomid)
   return data
 
-
-
-
 #EVENT FUNCTIONS FOR WEBSOCKET
 
 #this is the global timer starter

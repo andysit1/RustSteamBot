@@ -190,6 +190,14 @@ class RoomModel(BaseModel):
 
         #blackside = left portion
         print("FLIPING------------------------")
+
+        #base on the creating lobby make the other side diff
+        if self.players[0].side == "BlackCOIN":
+            self.players[1].side = "RedCOIN"
+        else:
+            self.players[1].side = "BlackCOIN"
+
+
         if self.players[0].side == "BlackCOIN":
             print("selecting blackcoin")
             # if the ticket value is greater then other player one
@@ -226,7 +234,7 @@ class LobbyModel(BaseModel):
     def setAction(self, action: str):
         self.action = action
 
-    
+
 
   # Print the closest sum and the corresponding subset
 
