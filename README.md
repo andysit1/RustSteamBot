@@ -65,58 +65,26 @@ droplets and be running like you only had one.
 
 ### The setup
 
-Each droplet is registered by IP:port when the app starts:
+Each droplet is registered by its `ip:port` when the app starts, in a short
+one-liner per bot (`app/roomBot.py`). There's also a `loadEnvBots()` path in
+`app/botCalls.py` that reads `BOT1`, `BOT2`, ... environment variables
+instead of hardcoding IPs in source — the safer way to do this in
+production, since it means droplet IPs aren't committed to git.
 
-```python
-# app/roomBot.py
-botCaller = BotTradeStream()
-botCaller.loadBotManually(ip="165.227.42.4:81")
-botCaller.loadBotManually(ip="165.227.36.241:81")
-```
-
-(there's also `loadEnvBots()` in `botCalls.py`, which reads `BOT1`, `BOT2`,
-... environment variables instead of hardcoding IPs in source — the safer
-way to do this in production, since it means droplet IPs aren't committed to
-git.)
-
-Internally, `BotTradeStream` just keeps a dict mapping each bot's IP to a
-counter:
-
-```python
-# app/botCalls.py
-class BotTradeStream():
-  def __init__(self):
-    self.roomid_ip = {}     # roomid -> which bot IP owns this trade
-    self.ip_address = {}    # bot IP -> how many times we've picked it
-
-  def loadBotManually(self, ip: str):
-    self.ip_address[ip] = 0
-```
+Internally, the `BotTradeStream` class (`app/botCalls.py`) just keeps two
+small dicts: one mapping each bot's IP to a counter of how many times it's
+been picked, and one mapping an active room ID to whichever bot IP owns
+that room's trade.
 
 ### The actual round-robin
 
-`getBestIP()` is the whole algorithm — it's a **least-used** picker, which
-is a slightly better version of plain round-robin:
-
-```python
-  def getBestIP(self):
-    match = 1000000
-    chose = None
-
-    for ip in self.ip_address:
-      if self.ip_address[ip] < match:
-        match = self.ip_address[ip]
-        chose = ip
-
-    self.ip_address[chose] += 1
-    return chose
-```
-
-Walk through it: every bot IP starts at a count of `0`. Each time a trade
-needs a bot, this scans all known IPs and returns whichever one has the
-*lowest* count so far, then bumps that IP's count by one. Next call, that
-IP now has the highest count of the group, so a different (or the next
-least-used) IP wins instead.
+The core of it is a single method — `getBestIP()` — and it's a
+**least-used** picker, which is a slightly better version of plain
+round-robin. Walk through what it does: every bot IP starts at a count of
+`0`. Each time a trade needs a bot, it scans all known IPs and returns
+whichever one has the *lowest* count so far, then bumps that IP's count by
+one. Next call, that IP now has the highest count of the group, so a
+different (or the next least-used) IP wins instead.
 
 Concretely, with two bots `A` and `B`, both starting at `0`:
 
@@ -138,33 +106,19 @@ cycling through a fixed order.
 A single trade round-trips (offer sent → player accepts/declines → maybe
 cancel), and all of those calls have to hit the **same** bot, because that's
 the one holding the actual Steam session for that trade. So the IP is picked
-once per room and then remembered:
-
-```python
-  def setRoomIP(self, roomid):
-    picked = self.getBestIP()
-    self.roomid_ip[roomid] = picked
-
-  async def trade(self, roomid: str, steamid: str, payload: dict):
-    ip = self.roomid_ip.get(roomid)     # reuse the IP this room was pinned to
-    url = "http://{}/trade/{}".format(ip, steamid)
-    requests.post(url=url, data=json.dumps(payload))
-```
+once per room, via `setRoomIP()`, and stored against that room's ID. Every
+subsequent call for that room looks up the IP it was pinned to rather than
+picking a new bot each time.
 
 `setRoomIP()` is called once, in `roomBot.py`'s `startRoom()`, right when a
 room is created — that's the load-balancing decision point. Every later
-call for that room (accept, cancel, payout) looks up `roomid_ip[roomid]`
-instead of picking a new bot, so a trade never gets split across two
-different Steam sessions mid-flight.
+call for that room (accept, cancel, payout) reuses the pinned IP, so a
+trade never gets split across two different Steam sessions mid-flight.
 
 Read-only calls that aren't tied to a specific in-flight trade — like
-`getUserInfo()`, which just needs any bot to fetch a Steam profile — don't
-bother with `getBestIP()`'s bookkeeping and just grab a random IP instead:
-
-```python
-  def getRandomIP(self):
-    return random.choice(list(self.ip_address.keys()))
-```
+fetching a Steam profile, which just needs *any* bot to answer — don't
+bother with `getBestIP()`'s bookkeeping and just grab a random IP from the
+pool instead.
 
 That's the split worth noticing: **stateful, session-bound work gets
 sticky/least-loaded routing; stateless reads get plain random routing.**
